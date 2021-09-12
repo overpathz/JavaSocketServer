@@ -24,7 +24,7 @@ public class HostServer {
             var server = new ServerSocket(port);
             while (!stopped) {
                 var socket = server.accept();
-                executorService.submit(()->processSocket(socket));
+                executorService.execute(()->processSocket(socket));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

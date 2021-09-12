@@ -1,24 +1,36 @@
 package sockets.server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class RequestHandler {
 
     public void processSocket(Socket socket) {
-        try(socket;
-            var inputStream = new DataInputStream(socket.getInputStream());
-            var outputStream = new DataOutputStream(socket.getOutputStream())) {
+        try(
+                socket;
+                var inputStream = new BufferedInputStream(socket.getInputStream());
+                var outputStream = new DataOutputStream(socket.getOutputStream());
+        ) {
 
-            // request handling
-            System.out.println("Request: " + inputStream.readUTF());
+            byte[] bytes = inputStream.readNBytes(450);
+            String result = new String(bytes);
+            System.out.println(result);
 
-            // response creating
-            var body = "Hello from server!";
+            var body = Files.readAllBytes(Path.of("src/main/resources/hello.html"));
 
-            outputStream.writeUTF(body);
+            var headers = """
+                    HTTP/1.1 200 OK
+                    Accept: text/html
+                    Content-Type: text/html
+                    Keep-Alive: timeout=5, max=5
+                    itsme: yes
+                    """.getBytes();
+
+            outputStream.write(headers);
+            outputStream.write(System.lineSeparator().getBytes());
+            outputStream.write(body);
 
         } catch (IOException e) {
             throw new RuntimeException(e);

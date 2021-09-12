@@ -27,8 +27,6 @@ public class ClientSocket extends Thread {
             var inputStream = new DataInputStream(socket.getInputStream())) {
 
             outputStream.writeUTF(message);
-
-            System.out.println(inputStream.readUTF());
         } catch (IOException e) {
 
         }
@@ -40,8 +38,6 @@ public class ClientSocket extends Thread {
     }
 
     public static void main(String[] args) {
-        for (int i = 0; i < 95; i++) {
-            new ClientSocket(Configuration.HOST, Configuration.PORT);
-        }
+
     }
 }
