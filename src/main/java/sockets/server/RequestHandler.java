@@ -1,12 +1,13 @@
 package sockets.server;
 
+import com.sun.net.httpserver.Headers;
+
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class RequestHandler {
-
     public void processSocket(Socket socket) {
         try(
                 socket;
@@ -14,9 +15,11 @@ public class RequestHandler {
                 var outputStream = new DataOutputStream(socket.getOutputStream());
         ) {
 
-            byte[] bytes = inputStream.readNBytes(450);
-            String result = new String(bytes);
-            System.out.println(result);
+            byte[] bytes = inputStream.readNBytes(440);
+            String strResponse = new String(bytes);
+
+            System.out.println(strResponse);
+            System.out.println(UrlParser.getRefererUrlFromHeaders(strResponse));
 
             var body = Files.readAllBytes(Path.of("src/main/resources/hello.html"));
 
@@ -24,8 +27,6 @@ public class RequestHandler {
                     HTTP/1.1 200 OK
                     Accept: text/html
                     Content-Type: text/html
-                    Keep-Alive: timeout=5, max=5
-                    itsme: yes
                     """.getBytes();
 
             outputStream.write(headers);
