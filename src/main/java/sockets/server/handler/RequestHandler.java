@@ -1,6 +1,8 @@
 package sockets.server.handler;
 
+import sockets.server.error.PageNotFoundError;
 import sockets.server.util.UrlParser;
+import sockets.server.util.ViewResolver;
 
 import java.io.*;
 import java.net.Socket;
@@ -19,10 +21,8 @@ public class RequestHandler {
             StringBuilder request = new StringBuilder();
             String inputLine;
             while (!(inputLine = inputStream.readLine()).equals("")) {
-                request.append(inputLine);
+                request.append(inputLine).append("\n");
             }
-
-            var body = Files.readAllBytes(Path.of("src/main/resources/hello.html"));
 
             var headers = """
                     HTTP/1.1 200 OK
@@ -30,15 +30,28 @@ public class RequestHandler {
                     Content-Type: text/html
                     """.getBytes();
 
-            try {
-                System.out.println("[REFERENCE] " + UrlParser.getRefererUrlFromHeaders(request.toString().getBytes()));
-            } catch (NullPointerException e) {
-                System.out.println("[SERVER] Request without referer header! Nothing to parse!");
-            }
+            System.out.println(request.toString());
 
-            outputStream.write(headers);
-            outputStream.write(System.lineSeparator().getBytes());
-            outputStream.write(body);
+            try {
+                String parsedView = UrlParser.getRefererUrlFromHeaders(request.toString().getBytes());
+
+                System.out.println(parsedView);
+
+                var view = ViewResolver.resolveView(parsedView);
+
+                outputStream.write(headers);
+                outputStream.write(System.lineSeparator().getBytes());
+                outputStream.write(view);
+
+            } catch (PageNotFoundError e) {
+
+                System.out.println("Словили");
+                var notFoundPage = Files.readAllBytes(Path.of("src/main/resources/errorView/404.html"));
+                outputStream.write(headers);
+                outputStream.write(System.lineSeparator().getBytes());
+                outputStream.write(notFoundPage);
+
+            }
 
         } catch (IOException e) {
             throw new RuntimeException(e);
