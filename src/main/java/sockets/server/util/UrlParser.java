@@ -1,4 +1,4 @@
-package sockets.server;
+package sockets.server.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

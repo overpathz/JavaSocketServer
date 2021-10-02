@@ -1,2 +1,8 @@
-package sockets.server;public class HttpRequest {
+package sockets.server;
+
+import lombok.Builder;
+
+@Builder
+public class HttpRequest {
+
 }

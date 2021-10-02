@@ -1,5 +1,5 @@
-package sockets.server;
+package sockets.server.util;
 
 public final class ViewResolver {
-    
+
 }

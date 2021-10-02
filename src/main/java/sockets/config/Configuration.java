@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 
 public final class Configuration {
 
+    public static final int POOL_SIZE = 100;
     public static final int PORT = 8778;
     public static final String HOST = getHost();
 

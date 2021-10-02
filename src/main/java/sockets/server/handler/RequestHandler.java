@@ -1,10 +1,9 @@
-package sockets.server;
+package sockets.server.handler;
 
-import com.sun.net.httpserver.Headers;
+import sockets.server.util.UrlParser;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -13,22 +12,15 @@ public class RequestHandler {
     public void processSocket(Socket socket) {
         try(
                 socket;
-               // var inputStream = new BufferedInputStream(socket.getInputStream());
                 var inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 var outputStream = new DataOutputStream(socket.getOutputStream());
         ) {
 
-
+            StringBuilder request = new StringBuilder();
             String inputLine;
-            while (!(inputLine = inputStream.readLine()).equals(""))
-                System.out.println(inputLine);
-
-            System.out.println(inputLine);
-
-            //byte[] bytes = inputStream.readNBytes(570);
-            //String strResponse = new String(bytes);
-
-            //System.out.println(strResponse);
+            while (!(inputLine = inputStream.readLine()).equals("")) {
+                request.append(inputLine);
+            }
 
             var body = Files.readAllBytes(Path.of("src/main/resources/hello.html"));
 
@@ -38,16 +30,15 @@ public class RequestHandler {
                     Content-Type: text/html
                     """.getBytes();
 
-            outputStream.write(headers);
-            outputStream.write(System.lineSeparator().getBytes());
-            outputStream.write(body);
-
             try {
-                System.out.println("[REFERENCE] " + UrlParser.getRefererUrlFromHeaders(inputLine.getBytes()));
+                System.out.println("[REFERENCE] " + UrlParser.getRefererUrlFromHeaders(request.toString().getBytes()));
             } catch (NullPointerException e) {
                 System.out.println("[SERVER] Request without referer header! Nothing to parse!");
             }
 
+            outputStream.write(headers);
+            outputStream.write(System.lineSeparator().getBytes());
+            outputStream.write(body);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
